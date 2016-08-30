@@ -233,6 +233,7 @@ customlight_t *dlightColorEx(float f, char *str, dlighttype_t def, qbool random,
 	if (l->type == lt_custom)
 		for (i = 0; i < 3; i++)
 			l->color[i] = min(128, color[i]); // i've seen color set in float form to 0.5 maximum and to 128 in byte form, so keep this tradition even i'm do not understand why they do so
+	l->alpha = color[3];
 
 	return l;
 }
@@ -1674,16 +1675,17 @@ void CL_LinkPlayers (void)
 		// VULT MOTION TRAILS
 		ent.alpha = 0;
 		// The player object never gets added.
-		if (j == cl.playernum)
-		{
+		if (j == cl.playernum) {
 			// VULT CAMERAS
-			if (cameratype != C_NORMAL && !cl.spectator)
+			if (cameratype != C_NORMAL && !cl.spectator) {
 				ent.alpha = -1;
-			else continue;
+			}
+			else {
+				continue;
+			}
 		}
 
-		if (!Cam_DrawPlayer(j))
-		{
+		if (!Cam_DrawPlayer(j)) {
 			continue;
 		}
 

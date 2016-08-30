@@ -95,6 +95,7 @@ static void OnChange_demo_dir(cvar_t *var, char *string, qbool *cancel);
 cvar_t demo_dir = {"demo_dir", "", 0, OnChange_demo_dir};
 cvar_t demo_benchmarkdumps = {"demo_benchmarkdumps", "1"};
 cvar_t cl_startupdemo = {"cl_startupdemo", ""};
+cvar_t demo_jump_rewind = { "demo_jump_rewind", "-10" };
 
 // Used to save track status when rewinding.
 static int rewind_trackslots[4];
@@ -1779,40 +1780,6 @@ static qbool CL_DemoReadDemRead(void)
 	// Read the net message from the demo.
 	CL_Demo_Read(net_message.data, net_message.cursize, false);
 
-	// Check what the last message type was for MVDs.
-	if (cls.mvdplayback)
-	{
-		int tracknum = -1;
-
-		switch(cls.lasttype)
-		{
-			case dem_multiple:
-			{
-				// Get the number of the player being tracked.
-				tracknum = Cam_TrackNum();
-
-				// If no player is tracked (free flying), or the player we're tracking
-				// is not affected by this message. If that's the case just read the next message.
-				if ((tracknum == -1) || !(cls.lastto & (1 << tracknum)))
-				{
-					return true;
-				}
-				break;
-			}
-			case dem_single:
-			{
-				// If we're not tracking the player referred to in the demo
-				// message it's time to read the next message.
-				tracknum = Cam_TrackNum();
-				if ((tracknum == -1) || (cls.lastto != spec_track))
-				{
-					return true;
-				}
-				break;
-			}
-		}
-	}
-
 	return false;
 }
 
@@ -1936,6 +1903,10 @@ qbool CL_GetDemoMessage (void)
 		return false;
 	#endif
 
+	// Only read packets when in main POV
+	if (!CL_Demo_IsPrimaryPointOfView ())
+		return false;
+
 	// Demo paused, don't read anything.
 	if (cl.paused & PAUSED_DEMO)
 	{
@@ -2002,8 +1973,14 @@ qbool CL_GetDemoMessage (void)
 			CL_Demo_Jump_Status_Check();
 
 		// If we found demomark, we should stop seeking, so reset time to the proper value.
-		if (cls.demoseeking == DST_SEEKING_FOUND) 
+		if (cls.demoseeking == DST_SEEKING_FOUND) {
 			cls.demotime = demotime; // this will trigger seeking stop
+
+			if (demo_jump_rewind.value < 0) {
+				CL_Demo_Jump (-demo_jump_rewind.value, -1, DST_SEEKING_NORMAL);
+			}
+			return false;
+		}
 
 		// If we've reached our seek goal, stop seeking.
 		if (cls.demoseeking && cls.demotime <= demotime && cls.state >= ca_active)
@@ -3548,11 +3525,12 @@ void CL_Play_f (void)
 	#endif // WITH_ZIP
 	#endif // WITH_VFS_ARCHIVE_LOADING
 
+	strlcpy(name, real_name, sizeof(name));
+
 	#ifdef WIN32
 	//
 	// Decompress QWZ demos to QWD before playing it (using an external app).
 	//
-	strlcpy (name, real_name, sizeof(name) - 4);
 
 	if (strlen(name) > 4 && !strcasecmp(COM_FileExtension(name), "qwz"))
 	{
@@ -3587,8 +3565,9 @@ void CL_Play_f (void)
 		{
 			// Strip the extension from the specified filename and append
 			// the one we're currently checking for.
-			COM_StripExtension(real_name, name, sizeof(name));
-			strlcpy(name, va("%s.%s", name, *s), sizeof(name));
+			COM_StripExtension(name, name, sizeof(name));
+			strlcat(name, ".", sizeof(name));
+			strlcat(name, *s, sizeof(name));
 
 			playbackfile = CL_Open_Demo_File(name, true, NULL);
 		}
@@ -4944,6 +4923,7 @@ void CL_Demo_Jump(double seconds, int relative, demoseekingtype_t seeking)
 	cls.demotime = newdemotime;
 
 	cls.demoseeking = seeking;
+	Con_ClearNotify ();
 }
 
 double Demo_GetSpeed(void)
@@ -5136,6 +5116,33 @@ void CL_Demo_Init(void)
 	Cvar_Register(&demo_dir);
 	Cvar_Register(&demo_benchmarkdumps);
 	Cvar_Register(&cl_startupdemo);
+	Cvar_Register(&demo_jump_rewind);
 
 	Cvar_ResetCurrentGroup();
 }
+
+qbool CL_Demo_SkipMessage (void)
+{
+	int tracknum = Cam_TrackNum();
+
+	if (cls.demoseeking)
+		return true;
+	if (!cls.mvdplayback)
+		return false;
+
+	if (cls.lasttype == dem_multiple && ((tracknum == -1) || !(cls.lastto & (1 << tracknum))))
+		return true;
+	if (cls.lasttype == dem_single && ((tracknum == -1) || (cls.lastto != spec_track)))
+		return true;
+
+	return false;
+}
+
+qbool CL_Demo_IsPrimaryPointOfView (void)
+{
+	if (cls.mvdplayback && cl_multiview.value && CURRVIEW != 1)
+		return false;
+
+	return true;
+}
+

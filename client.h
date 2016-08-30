@@ -240,8 +240,9 @@ typedef struct {
 } dlight_t;
 
 typedef struct customlight_s {
-	dlighttype_t	type;
-	byte			color[3];			// use such color if type == lt_custom
+	dlighttype_t    type;
+	byte            color[3];           // use such color if type == lt_custom
+	byte            alpha;
 } customlight_t;
 
 typedef struct {
@@ -713,6 +714,8 @@ void CL_Demo_Stop_Rewinding(void);
 double Demo_GetSpeed(void);
 void Demo_AdjustSpeed(void);
 qbool CL_IsDemoExtension(const char *filename);
+qbool CL_Demo_SkipMessage(void);
+qbool CL_Demo_IsPrimaryPointOfView(void);
 
 void CL_AutoRecord_StopMatch(void);
 void CL_AutoRecord_CancelMatch(void);
@@ -957,10 +960,11 @@ extern int		nPlayernum;
 
 extern int		mv_trackslots[4];			// The different track slots for each view.
 extern char		currteam[MAX_INFO_STRING];	// The name of the current team being tracked in multiview mode.
-extern int		mvlatch;
 extern int		nSwapPov;					// Change in POV positive for next, negative for previous.
 extern int		nTrack1duel;				// When cl_multiview = 2 and mvinset is on this is the tracking slot for the main view.
 extern int		nTrack2duel;				// When cl_multiview = 2 and mvinset is on this is the tracking slot for the mvinset view.
+
+int CL_MultiviewNextPlayer (void);
 
 //
 // Original values saved between frames for effects that are
