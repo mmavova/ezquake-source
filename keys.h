@@ -152,8 +152,13 @@ typedef enum {
 	K_MOUSE5,
 	K_MOUSE6,
 	K_MOUSE7,
-	K_MOUSE8,
+	K_MOUSE8, // 207
 
+// Fancy multimedia keyboard keys
+	K_AUDIONEXT, // 208
+	K_AUDIOPREV,
+	K_AUDIOSTOP,
+        
 // JACK: Intellimouse(c) Mouse Wheel Support
 
 	K_MWHEELUP = 244,

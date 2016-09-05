@@ -43,6 +43,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "qtv.h"
 #include "utils.h"
 
+#include <stdio.h>
+
 extern cvar_t sys_disable_alt_enter;
 
 //key up events are sent even if in console mode
@@ -259,6 +261,9 @@ keyname_t keynames[] = {
 	{"ADIAERESIS", K_ADIAERESIS},
 	{"ODIAERESIS", K_ODIAERESIS},
 	{"WAKE_UP", K_WAKE_UP},
+	{"AUDIO_NEXT", K_AUDIONEXT},
+	{"AUDIO_PREV", K_AUDIOPREV},
+	{"AUDIO_STOP", K_AUDIOSTOP},
 
 	{NULL,0}
 };

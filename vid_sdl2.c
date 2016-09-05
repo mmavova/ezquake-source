@@ -544,29 +544,36 @@ byte Key_ScancodeToQuakeCode(int scancode)
 		quakeCode = scantokey[scancode];
 	else if (scancode >= 224 && scancode < 224 + 8)
 		quakeCode = scantokey[scancode - 104];
-
+	else if (scancode >= 257) {
+		switch (scancode)
+		{
+		case 258: quakeCode = K_AUDIONEXT; break;
+		case 259: quakeCode = K_AUDIOPREV; break;
+		case 260: quakeCode = K_AUDIOSTOP; break;
+		}
+	}
 	if (!cl_keypad.integer) {
 		// compatibility mode without knowledge about keypad-keys:
 		switch (quakeCode)
 		{
-		case KP_NUMLOCK:     quakeCode = K_PAUSE;          break;
-		case KP_SLASH:       quakeCode = '/';              break;
-		case KP_STAR:        quakeCode = '*';              break;
-		case KP_MINUS:       quakeCode = '-';              break;
-		case KP_HOME:        quakeCode = K_HOME;           break;
-		case KP_UPARROW:     quakeCode = K_UPARROW;        break;
-		case KP_PGUP:        quakeCode = K_PGUP;           break;
-		case KP_LEFTARROW:   quakeCode = K_LEFTARROW;      break;
-		case KP_5:           quakeCode = '5';              break;
-		case KP_RIGHTARROW:  quakeCode = K_RIGHTARROW;     break;
-		case KP_PLUS:        quakeCode = '+';              break;
-		case KP_END:         quakeCode = K_END;            break;
-		case KP_DOWNARROW:   quakeCode = K_DOWNARROW;      break;
-		case KP_PGDN:        quakeCode = K_PGDN;           break;
-		case KP_INS:         quakeCode = K_INS;            break;
-		case KP_DEL:         quakeCode = K_DEL;            break;
-		case KP_ENTER:       quakeCode = K_ENTER;          break;
-		default:                                           break;
+		case KP_NUMLOCK:     quakeCode = K_PAUSE;	   break;
+		case KP_SLASH:	     quakeCode = '/';		   break;
+		case KP_STAR:	     quakeCode = '*';		   break;
+		case KP_MINUS:	     quakeCode = '-';		   break;
+		case KP_HOME:	     quakeCode = K_HOME;	   break;
+		case KP_UPARROW:     quakeCode = K_UPARROW;	   break;
+		case KP_PGUP:	     quakeCode = K_PGUP;	   break;
+		case KP_LEFTARROW:   quakeCode = K_LEFTARROW;	   break;
+		case KP_5:	     quakeCode = '5';		   break;
+		case KP_RIGHTARROW:  quakeCode = K_RIGHTARROW;	   break;
+		case KP_PLUS:	     quakeCode = '+';		   break;
+		case KP_END:	     quakeCode = K_END;		   break;
+		case KP_DOWNARROW:   quakeCode = K_DOWNARROW;	   break;
+		case KP_PGDN:	     quakeCode = K_PGDN;	   break;
+		case KP_INS:	     quakeCode = K_INS;		   break;
+		case KP_DEL:	     quakeCode = K_DEL;		   break;
+		case KP_ENTER:	     quakeCode = K_ENTER;	   break;			 
+		default:					   break;
 		}
 	}
 
