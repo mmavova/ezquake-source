@@ -3555,11 +3555,8 @@ void CL_Play_f (void)
 
 		// If they specified a valid extension, try that first
 		for (s = ext; *s && !playbackfile; ++s)
-			if (!strcasecmp(COM_FileExtension(real_name), *s))
-                        {
-				playbackfile = CL_Open_Demo_File(real_name, true, NULL);
-                                strlcpy(name, real_name, sizeof(name));
-                        }
+			if (!strcasecmp(COM_FileExtension(name), *s)) 
+				playbackfile = CL_Open_Demo_File(name, true, NULL);
 
 		for (s = ext; *s && !playbackfile; s++)
 		{
